@@ -1,0 +1,1 @@
+export default function NotFound(){return <main className="legal-shell"><div className="legal-card"><div className="eyebrow">404</div><h1>Page not found.</h1><p className="legal-lead">The page you requested doesn’t exist or is no longer available.</p><a className="primary" href="/">Return to PayFlow</a></div></main>}
