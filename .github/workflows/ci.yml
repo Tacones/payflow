@@ -9,7 +9,7 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: postgresql://ci:ci@localhost:5432/payflow
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/payflow\n    services:\n      postgres:\n        image: postgres:16\n        env:\n          POSTGRES_USER: ci\n          POSTGRES_PASSWORD: ci\n          POSTGRES_DB: payflow\n        ports:\n          - 5432:5432\n        options: >-\n          --health-cmd "pg_isready -U ci -d payflow"\n          --health-interval 10s\n          --health-timeout 5s\n          --health-retries 5
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_placeholder
       CLERK_SECRET_KEY: sk_test_placeholder
     steps:
