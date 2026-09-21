@@ -42,7 +42,7 @@ export default function Home() {
 
       <section className="security" id="security"><div><div className="eyebrow">PRIVACY BY DESIGN</div><h2>Your client data comes first.</h2><p>PayFlow is being built with account isolation, secure authentication, server-side secrets, and no public exposure of client or invoice records.</p></div><div className="security-badge"><span className="badge-icon">✓</span><div><strong>Account Security</strong><small>Private access · isolated workspace</small></div></div><div className="security-list"><div>✓ Private workspace per account</div><div>✓ No bank credentials stored</div><div>✓ Secrets kept out of source code</div><div>✓ Stripe-ready architecture</div></div></section>
 
-      <footer><div className="brand"><span className="brand-mark">P</span> PayFlow</div><span>© 2026 PayFlow. Built for getting paid.</span></footer>
+      <footer><div className="brand"><span className="brand-mark">P</span> PayFlow</div><div className="nav-links"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/security">Security</a><span>© 2026 PayFlow.</span></div></footer>
     </main>
   );
 }
