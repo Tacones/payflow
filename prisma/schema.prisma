@@ -8,19 +8,21 @@ datasource db {
 }
 
 model Workspace {
-  id        String   @id @default(cuid())
-  clerkUserId String @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  clerkUserId String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   clients   Client[]
   invoices  Invoice[]
   followUps FollowUp[]
   payments  Payment[]
+
+  @@index([createdAt])
 }
 
 model Client {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   workspaceId String
   name        String
   email       String?
@@ -31,44 +33,45 @@ model Client {
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   invoices  Invoice[]
 
-  @@index([workspaceId])
+  // Composite identity makes the workspace boundary part of the database key.
+  @@unique([workspaceId, id])
+  @@index([workspaceId, createdAt])
 }
 
 model Invoice {
-  id          String    @id @default(cuid())
+  id          String        @id @default(cuid())
   workspaceId String
   clientId    String
   title       String
   amountCents Int
-  currency    String    @default("USD")
+  currency    String        @default("USD")
   dueDate     DateTime
   status      InvoiceStatus @default(OPEN)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  client    Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client    Client    @relation(fields: [workspaceId, clientId], references: [workspaceId, id], onDelete: Cascade)
   followUps FollowUp[]
   payments  Payment[]
 
-  @@index([workspaceId])
-  @@index([workspaceId, status])
-  @@index([clientId])
+  @@unique([workspaceId, id])
+  @@index([workspaceId, status, dueDate])
+  @@index([workspaceId, clientId])
 }
 
 model FollowUp {
-  id          String   @id @default(cuid())
+  id          String          @id @default(cuid())
   workspaceId String
   invoiceId   String
   template    FollowUpTemplate
   message     String
-  sentAt      DateTime @default(now())
+  sentAt      DateTime        @default(now())
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  invoice   Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoice   Invoice   @relation(fields: [workspaceId, invoiceId], references: [workspaceId, id], onDelete: Cascade)
 
-  @@index([workspaceId])
-  @@index([invoiceId])
+  @@index([workspaceId, invoiceId, sentAt])
 }
 
 model Payment {
@@ -80,10 +83,9 @@ model Payment {
   method      String?
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  invoice   Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoice   Invoice   @relation(fields: [workspaceId, invoiceId], references: [workspaceId, id], onDelete: Cascade)
 
-  @@index([workspaceId])
-  @@index([invoiceId])
+  @@index([workspaceId, invoiceId, paidAt])
 }
 
 enum InvoiceStatus {
