@@ -17,3 +17,19 @@ Get paid without the awkward follow-up.
 npm install
 npm run dev
 ```
+
+
+## Security architecture
+
+PayFlow treats account isolation as a product requirement.
+
+- Authentication is handled by Clerk.
+- Every private request resolves the authenticated Clerk user on the server.
+- A workspace is uniquely owned by one authenticated user in the current MVP.
+- Clients, invoices, follow-ups, and payments carry a workspace boundary.
+- Server-side data access must derive ownership from the authenticated session, never from an arbitrary browser-supplied workspace ID.
+- Database credentials and authentication secrets stay in environment variables.
+- No real customer data belongs in source control.
+- Before production launch, authorization tests must cover cross-account reads, updates, deletes, ID enumeration, and unauthenticated API access.
+
+The security badge in the product is intentionally descriptive rather than a certification claim.
