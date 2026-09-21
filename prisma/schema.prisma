@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  clerkUserId String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clients   Client[]
+  invoices  Invoice[]
+  followUps FollowUp[]
+  payments  Payment[]
+}
+
+model Client {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  email       String?
+  company     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invoices  Invoice[]
+
+  @@index([workspaceId])
+}
+
+model Invoice {
+  id          String    @id @default(cuid())
+  workspaceId String
+  clientId    String
+  title       String
+  amountCents Int
+  currency    String    @default("USD")
+  dueDate     DateTime
+  status      InvoiceStatus @default(OPEN)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  client    Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  followUps FollowUp[]
+  payments  Payment[]
+
+  @@index([workspaceId])
+  @@index([workspaceId, status])
+  @@index([clientId])
+}
+
+model FollowUp {
+  id          String   @id @default(cuid())
+  workspaceId String
+  invoiceId   String
+  template    FollowUpTemplate
+  message     String
+  sentAt      DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invoice   Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([invoiceId])
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  workspaceId String
+  invoiceId   String
+  amountCents Int
+  paidAt      DateTime @default(now())
+  method      String?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invoice   Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([invoiceId])
+}
+
+enum InvoiceStatus {
+  OPEN
+  OVERDUE
+  PAID
+}
+
+enum FollowUpTemplate {
+  GENTLE
+  PROFESSIONAL
+  FINAL
+}
