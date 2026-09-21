@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
+import "./auth.css";
 
 export const metadata: Metadata = {
   title: "PayFlow — Get paid without the awkward follow-up.",
