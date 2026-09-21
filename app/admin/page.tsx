@@ -41,6 +41,7 @@ export default async function AdminPage() {
     invoiceCount,
     clientCount,
     overdueResult,
+    activeSubscriptionCount,
   ] = await Promise.all([
     client.users.getUserList({ limit: 10, orderBy: "-created_at" }),
     db.workspace.count(),
@@ -52,6 +53,7 @@ export default async function AdminPage() {
       _sum: { amountCents: true },
       where: { status: { not: "PAID" }, dueDate: { lt: now } },
     }),
+    db.subscription.count({ where: { status: { in: ["active", "trialing"] } } }),
   ]);
 
   const recentUserIds = usersResult.data.map((user) => user.id);
@@ -93,16 +95,17 @@ export default async function AdminPage() {
             <div><span>Clients</span><strong>{clientCount}</strong></div>
             <div><span>Invoices</span><strong>{invoiceCount}</strong></div>
             <div><span>Overdue value</span><strong>{money(overdueResult._sum.amountCents ?? 0)}</strong></div>
+            <div><span>Paid plans</span><strong>{activeSubscriptionCount}</strong></div>
           </div>
         </article>
 
         <article className="admin-card">
           <div className="admin-card-head">
-            <div><h2>Billing</h2><p>Stripe billing will populate this area once connected.</p></div>
+            <div><h2>Billing</h2><p>Subscription state is ready for Stripe webhooks.</p></div>
           </div>
           <div className="billing-placeholder">
-            <strong>Ready for Stripe</strong>
-            <span>Customer, plan, subscription status and recurring revenue will be tracked here.</span>
+            <strong>Billing foundation ready</strong>
+            <span>Customer, plan, subscription status and recurring revenue can be populated from Stripe without exposing customer workspace data.</span>
           </div>
         </article>
       </section>
