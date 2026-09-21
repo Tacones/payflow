@@ -1,0 +1,3 @@
+"use client";
+
+export default function GlobalError({reset}:{error:Error&{digest?:string};reset:()=>void}){return <main className="legal-shell"><div className="legal-card"><div className="eyebrow">SOMETHING WENT WRONG</div><h1>Let’s try that again.</h1><p className="legal-lead">PayFlow hit an unexpected application error. Your workspace data is not exposed on this screen.</p><button className="primary" onClick={()=>reset()}>Try again</button></div></main>}
