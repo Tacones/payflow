@@ -71,7 +71,7 @@ export default async function DashboardPage() {
           </div>
           <div className="header-actions">
             <UserButton afterSignOutUrl="/" />
-            <a className="primary" href="/dashboard">+ Add invoice</a>
+            <a className="primary" href="/dashboard">Manage invoices</a>
           </div>
         </header>
 
