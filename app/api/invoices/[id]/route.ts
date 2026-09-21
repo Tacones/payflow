@@ -12,15 +12,27 @@ export async function PATCH(request: Request, { params }: Params) {
     const { id } = await params;
     const existing = await db.invoice.findFirst({ where: { id, workspaceId: workspace.id } });
     if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
-    const body = await request.json();
-    const data: { title?: string; amountCents?: number; dueDate?: Date; status?: "OPEN"|"OVERDUE"|"PAID" } = {};
+    if (existing.status === "PAID") return NextResponse.json({ error: "Paid invoices cannot be edited" }, { status: 409 });
+
+    const body = await request.json().catch(() => null);
+    if (!body || typeof body !== "object") return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    const data: { title?: string; amountCents?: number; dueDate?: Date } = {};
+
     if (typeof body.title === "string") data.title = body.title.trim();
-    if (body.amountCents !== undefined) data.amountCents = Number(body.amountCents);
-    if (body.dueDate !== undefined) data.dueDate = new Date(body.dueDate);
-    if (body.status === "OPEN" || body.status === "OVERDUE" || body.status === "PAID") data.status = body.status;
+    if (body.amountCents !== undefined) {
+      const amount = Number(body.amountCents);
+      if (!Number.isInteger(amount) || amount <= 0) return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
+      data.amountCents = amount;
+    }
+    if (body.dueDate !== undefined) {
+      if (typeof body.dueDate !== "string") return NextResponse.json({ error: "Invalid due date" }, { status: 400 });
+      const date = new Date(body.dueDate);
+      if (Number.isNaN(date.getTime())) return NextResponse.json({ error: "Invalid due date" }, { status: 400 });
+      data.dueDate = date;
+    }
     if (data.title !== undefined && (!data.title || data.title.length > 180)) return NextResponse.json({ error: "Invalid title" }, { status: 400 });
-    if (data.amountCents !== undefined && (!Number.isInteger(data.amountCents) || data.amountCents <= 0)) return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
-    if (data.dueDate && Number.isNaN(data.dueDate.getTime())) return NextResponse.json({ error: "Invalid due date" }, { status: 400 });
+    if (Object.keys(data).length === 0) return NextResponse.json({ error: "No changes supplied" }, { status: 400 });
+
     const invoice = await db.invoice.update({ where: { id }, data });
     return NextResponse.json({ invoice });
   } catch (error) {
@@ -34,8 +46,9 @@ export async function DELETE(_request: Request, { params }: Params) {
     const userId = await requireUserId();
     const workspace = await getWorkspaceByClerkUserId(userId);
     const { id } = await params;
-    const existing = await db.invoice.findFirst({ where: { id, workspaceId: workspace.id } });
+    const existing = await db.invoice.findFirst({ where: { id, workspaceId: workspace.id }, include: { _count: { select: { payments: true } } } });
     if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (existing._count.payments > 0) return NextResponse.json({ error: "Paid invoices cannot be deleted" }, { status: 409 });
     await db.invoice.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   } catch (error) {
