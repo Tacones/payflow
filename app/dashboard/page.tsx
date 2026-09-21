@@ -52,12 +52,12 @@ export default async function DashboardPage() {
         <div className="brand"><span className="brand-mark">P</span> PayFlow</div>
         <nav>
           <a className="active" href="/dashboard">Overview</a>
-          <a href="/dashboard">Invoices</a>
-          <a href="/dashboard">Clients</a>
-          <a href="/dashboard">Follow-ups</a>
+          <a href="/dashboard/invoices">Invoices</a>
+          <a href="/dashboard/clients">Clients</a>
+          <a href="/dashboard/follow-ups">Follow-ups</a>
         </nav>
         <div className="sidebar-bottom">
-          <a href="/dashboard">Settings</a>
+          <a href="/dashboard/settings">Settings</a>
           <span className="secure-note">Private workspace</span>
         </div>
       </aside>
@@ -71,7 +71,7 @@ export default async function DashboardPage() {
           </div>
           <div className="header-actions">
             <UserButton afterSignOutUrl="/" />
-            <a className="primary" href="/dashboard">Manage invoices</a>
+            <a className="primary" href="/dashboard/invoices">Manage invoices</a>
           </div>
         </header>
 
