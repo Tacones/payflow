@@ -23,7 +23,7 @@ export async function POST(request: Request, { params }: Params) {
     const template = body.template === "FINAL" || body.template === "PROFESSIONAL" ? body.template : "GENTLE";
     const custom = typeof body.message === "string" ? body.message.trim() : "";
     if (custom.length > 2000) return NextResponse.json({ error: "Message is too long." }, { status: 400 });
-    const message = custom || templates[template].replaceAll("{{client}}", invoice.client.name).replaceAll("{{invoice}}", invoice.title);
+    const message = custom || templates[template as keyof typeof templates].replaceAll("{{client}}", client.name).replaceAll("{{invoice}}", invoice.id););
     const followUp = await db.followUp.create({ data: { workspaceId: workspace.id, invoiceId: invoice.id, template, message } });
     return NextResponse.json({ followUp }, { status: 201 });
   } catch (error) {
