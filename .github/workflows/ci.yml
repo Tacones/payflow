@@ -9,9 +9,23 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: postgresql://ci:ci@localhost:5432/payflow\n    services:\n      postgres:\n        image: postgres:16\n        env:\n          POSTGRES_USER: ci\n          POSTGRES_PASSWORD: ci\n          POSTGRES_DB: payflow\n        ports:\n          - 5432:5432\n        options: >-\n          --health-cmd "pg_isready -U ci -d payflow"\n          --health-interval 10s\n          --health-timeout 5s\n          --health-retries 5
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/payflow
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_placeholder
       CLERK_SECRET_KEY: sk_test_placeholder
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: payflow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci -d payflow"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,6 +34,7 @@ jobs:
           cache: npm
       - run: npm install
       - run: npm run db:generate
+      - run: npm run db:push
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run build
