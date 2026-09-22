@@ -17,7 +17,7 @@ export async function PATCH(request: Request, { params }: Params) {
     const email = typeof body.email === "string" ? body.email.trim() : existing.email;
     const company = typeof body.company === "string" ? body.company.trim() : existing.company;
     if (!name || name.length > 120) return NextResponse.json({ error: "Invalid client data" }, { status: 400 });
-    const client = await db.client.update({ where: { id }, data: { name, email: email || null, company: company || null } });
+    const client = await db.client.update({ where: { id, workspaceId: workspace.id }, data: { name, email: email || null, company: company || null } });
     return NextResponse.json({ client });
   } catch (error) {
     if (error instanceof Error && error.message === "UNAUTHORIZED") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -32,7 +32,9 @@ export async function DELETE(_request: Request, { params }: Params) {
     const { id } = await params;
     const existing = await db.client.findFirst({ where: { id, workspaceId: workspace.id } });
     if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
-    await db.client.delete({ where: { id } });
+    const counts = await db.client.findUnique({ where: { id }, select: { _count: { select: { invoices: true } } } });
+    if (counts?._count.invoices) return NextResponse.json({ error: "Clients with invoices cannot be deleted." }, { status: 409 });
+    await db.client.delete({ where: { id, workspaceId: workspace.id } });
     return NextResponse.json({ ok: true });
   } catch (error) {
     if (error instanceof Error && error.message === "UNAUTHORIZED") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
