@@ -22,7 +22,7 @@ export default function InvoicesPage(){
     const f=new FormData(e.currentTarget);
     const amount=Math.round(Number(f.get("amount"))*100);
     const r=await fetch("/api/invoices",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({clientId:f.get("clientId"),title:f.get("title"),amountCents:amount,dueDate:f.get("dueDate"),currency:"USD"})});
-    if(!r.ok){setMessage("Please check the invoice details.");return}
+    if(!r.ok){const data=await r.json().catch(()=>null);setMessage(typeof data?.error==="string"?data.error:"Please check the invoice details.");return}
     e.currentTarget.reset(); setMessage("Invoice created."); await load();
   }
   async function action(id:string,path:string){
