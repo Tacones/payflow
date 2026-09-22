@@ -23,7 +23,7 @@ export default function Home() {
         <div className="eyebrow">PAYMENT FOLLOW-UP, WITHOUT THE FRICTION</div>
         <h1>Get paid without the <span>awkward follow-up.</span></h1>
         <p>PayFlow helps independent professionals keep invoices visible, follow up professionally, and turn outstanding payments into cash flow.</p>
-        <div className="hero-actions"><a className="primary large" href="/sign-up">Try PayFlow free</a><button className="secondary large">See how it works <span>→</span></button></div>
+        <div className="hero-actions"><a className="primary large" href="/sign-up">Try PayFlow free</a><a className="secondary large" href="#product">See how it works <span>→</span></a></div>
         <div className="trust"><span>✓ No credit card required</span><span>✓ Built for solo businesses</span><span>✓ Your client data stays private</span></div>
       </section>
 
