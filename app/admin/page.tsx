@@ -10,8 +10,8 @@ function money(cents: number) {
   }).format(cents / 100);
 }
 
-function formatDate(date: Date) {
-  return date.toLocaleDateString("en-US", {
+function formatDate(date: Date | number) {
+  return new Date(date).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
