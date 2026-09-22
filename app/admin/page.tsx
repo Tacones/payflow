@@ -129,7 +129,7 @@ export default async function AdminPage() {
                 </div>
                 <div className="admin-user-meta">
                   <span>{workspace ? "Workspace active" : "Account created"}</span>
-                  <small>{formatDate(workspace?.createdAt ?? user.createdAt)}</small>
+                  <small>{formatDate(new Date(workspace?.createdAt ?? user.createdAt))}</small>
                 </div>
               </div>
             );
