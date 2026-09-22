@@ -28,7 +28,8 @@ export async function POST(request: Request) {
     if (!body || typeof body !== "object") return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     const name = clean(body.name, 120); const email = clean(body.email, 254); const company = clean(body.company, 160);
     const subscription = await db.subscription.findUnique({ where: { workspaceId: workspace.id }, select: { plan: true, status: true } });
-    if ((!subscription || subscription.plan === "FREE") && (subscription?.status === "canceled" || !subscription || subscription.status === "active" || subscription.status === "trialing")) {
+    const hasPaidEntitlement = !!subscription && (subscription.plan === "PRO" || subscription.plan === "BUSINESS") && (subscription.status === "active" || subscription.status === "trialing");
+    if (!hasPaidEntitlement) {
       const activeClients = await db.client.count({ where: { workspaceId: workspace.id } });
       if (activeClients >= 5) return NextResponse.json({ error: "Free plan limit reached. Upgrade to add more clients." }, { status: 403 });
     }
